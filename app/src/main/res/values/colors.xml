@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#ffffff</color>
+    <color name="btn_bg">#bbbbbb</color>
+    <color name="txt_font">#000000</color>
+    <color name="view_background">#77FF77</color>
+
+
+    <color name="app_primary">#bbbbbb</color>
+    <color name="app_primary_pressed">#000000</color>
+    <color name="app_ripple">#77FF77</color>
+
+
+
+</resources>

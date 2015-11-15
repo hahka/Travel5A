@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Travel5A</string>
+
+    <string name="title_section1">Mes Moments</string>
+    <string name="title_section2">A Proximité</string>
+    <string name="title_section3">Paramètres</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+
+    <string name="action_settings">Paramètres</string>
+    <string name="title_activity_maps">Map</string>
+
+
+    <string name="legal">Legal Notices</string>
+    <string name="no_maps">Google Maps V2 non disponible!</string>
+    <string name="map_page_title">Map #</string>
+    <string name="united_nations">Nations Unies</string>
+    <string name="lincoln_center_snippet">Home of Jazz at Lincoln Center</string>
+    <string name="practice_x3">Where you go with practice, practice, practice</string>
+    <string name="heisman_trophy">Original home of the Heisman Trophy</string>
+    <string name="btnTakePicture">Photo</string>
+    <string name="btnRecordVideo">Vidéo</string>
+    <string name="or">ou</string>
+    <string name="btnUploadToServer">Envoyer au serveur!</string>
+    <string name="record_video">Enregistrer une Vidéo</string>
+    <string name="take_picture">Prendre une Photo</string>
+    <string name="uploadingPublication">Envoi en cours…</string>
+    <string name="publication_description">Décrivez brièvement votre image</string>
+    <string name="gps_network_not_enabled">La géolocalisation est désactivée</string>
+    <string name="cancel">Annuler</string>
+    <string name="open_location_settings">Ouvrir les paramètres?</string>
+</resources>
