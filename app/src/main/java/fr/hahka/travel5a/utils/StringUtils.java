@@ -1,5 +1,9 @@
 package fr.hahka.travel5a.utils;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Created by thibautvirolle on 11/11/15.
  */
@@ -19,5 +23,16 @@ public final class StringUtils {
         return "ftp://" + user + ":" + password + "@" + host + "/" + path;
     }
 
+    public static String md5(String s) {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+            digest.update(s.getBytes(), 0, s.length());
+            return new BigInteger(1, digest.digest()).toString(16);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
 }

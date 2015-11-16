@@ -74,6 +74,7 @@ public class RequestHandler {
                 response = br.readLine();
             } else {
                 response = "Error Registering";
+                response = String.valueOf(responseCode);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -36,4 +36,8 @@
     <string name="gps_network_not_enabled">Location services are not enabled</string>
     <string name="open_location_settings">Open settings?</string>
     <string name="cancel">Cancel</string>
+    <string name="action_sign_in">Log in</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_email">Email</string>
+    <string name="unable_to_geolocate">Unable to geolocate</string>
 </resources>

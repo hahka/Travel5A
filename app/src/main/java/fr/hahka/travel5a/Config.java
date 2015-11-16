@@ -13,7 +13,12 @@ public final class Config {
     /**
      * Adresse du fichier utilisé pour uploader les fichiers sur le serveur
      */
-    public static final String UPLOAD_URL = "http://thibautvirolle.fr/projet5atravel/uploads.php";
+    public static final String UPLOAD_URL = "http://thibautvirolle.fr/projet5atravel/upload_publication.php";
+
+    /**
+     * Adresse du fichier utilisé pour récupérer les points d'intérêts
+     */
+    public static final String GET_POI_URL = "http://thibautvirolle.fr/projet5atravel/get_poi.php";
 
 
     /**

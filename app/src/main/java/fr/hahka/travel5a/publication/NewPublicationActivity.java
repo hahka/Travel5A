@@ -2,18 +2,23 @@ package fr.hahka.travel5a.publication;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 
 import fr.hahka.travel5a.Config;
@@ -25,7 +30,9 @@ import fr.hahka.travel5a.utils.ImageUtils;
 /**
  * Activité pour publier une nouvelle photo (et enregistrement sonore)
  */
-public class NewPublicationActivity extends Activity {
+public class NewPublicationActivity extends Activity
+        implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     /**
      *LogCat tag
@@ -53,10 +60,24 @@ public class NewPublicationActivity extends Activity {
     private FloatingActionButton uploadButton;
 
     /**
+     * EditText pour le description de la publication
+     */
+    private EditText descriptionPublication;
+
+    /**
      *
      */
     private File image;
 
+    private Double latitude;
+    private Double longitude;
+
+
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+
+    private LocationManager locationManager;
+    private String bestProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +91,11 @@ public class NewPublicationActivity extends Activity {
 
         uploadButton = (FloatingActionButton) findViewById(R.id.fab_upload);
 
+        descriptionPublication = (EditText) findViewById(R.id.publicationDescription);
+
+
+        buildGoogleApiClient();
+        mGoogleApiClient.connect();
 
         /**
          * Capture image button click event
@@ -80,13 +106,15 @@ public class NewPublicationActivity extends Activity {
             public void onClick(View v) {
                 // TODO : Envoi de la publication complète
                 // Envoi de la publication (image) au serveur
-                uploadBitmap();
+                uploadPublication();
             }
         });
 
         Bundle bundle = getIntent().getExtras();
 
         String fileUri = bundle.getString("fileuri");
+        latitude = bundle.getDouble("latitude");
+        longitude = bundle.getDouble("longitude");
 
         Log.d(TAG, fileUri);
         File sd = Environment.getExternalStorageDirectory();
@@ -102,67 +130,21 @@ public class NewPublicationActivity extends Activity {
 
     }
 
-    /**
-     * TODO : A expliquer
-     */
-    private void uploadImage() {
-
-        class UploadImage extends AsyncTask<File, Void, String> {
-
-            private RequestHandler rh = new RequestHandler();
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                uploadButton.setShowProgressBackground(true);
-                uploadButton.setIndeterminate(true);
-                Toast.makeText(getApplicationContext(), "Uploading image", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                uploadButton.setIndeterminate(false);
-                uploadButton.setProgress(100, false);
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            protected String doInBackground(File... params) {
-                File imageParam = params[0];
-                String uploadImage;
-
-                HashMap<String, String> data = new HashMap<>();
-                try {
-                    uploadImage = FileUtils.getEncodedFile(imageParam);
-
-                    data.put(UPLOAD_KEY, uploadImage);
-                    data.put("image_name", image.getName());
-                    data.put("image_name", image.getName());
-                    data.put("image_name", image.getName());
-                    data.put("image_name", image.getName());
-                    data.put("image_name", image.getName());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                return rh.sendPostRequest(Config.UPLOAD_URL, data);
-            }
-        }
-
-        UploadImage ui = new UploadImage();
-        ui.execute(image);
-
-    }
 
     /**
      * TODO : A expliquer
      */
-    private void uploadBitmap() {
+    private void uploadPublication() {
 
         class UploadBitmap extends AsyncTask<Bitmap, Void, String> {
 
             private RequestHandler rh = new RequestHandler();
+
+            private String descriptionPublication;
+
+            public void setDescriptionPublication(String str) {
+                descriptionPublication = str;
+            }
 
             @Override
             protected void onPreExecute() {
@@ -183,18 +165,66 @@ public class NewPublicationActivity extends Activity {
             @Override
             protected String doInBackground(Bitmap... params) {
 
-                HashMap<String, String> data = new HashMap<>();
+                if(mLastLocation != null) {
+                    HashMap<String, String> data = new HashMap<>();
 
-                data.put(UPLOAD_KEY, FileUtils.getEncodedBitmap(params[0]));
-                data.put("image_name", image.getName().replace(".jpg", ".bmp"));
+                    data.put(UPLOAD_KEY, FileUtils.getEncodedBitmap(params[0]));
+                    data.put("image_name", image.getName().replace(".jpg", ".bmp"));
+                    data.put("user_id", "2");
+                    data.put("description", (descriptionPublication));
+                    data.put("latitude", String.valueOf(mLastLocation.getLatitude()));
+                    data.put("longitude", String.valueOf(mLastLocation.getLongitude()));
 
-                return rh.sendPostRequest(Config.UPLOAD_URL, data);
+                    return rh.sendPostRequest(Config.UPLOAD_URL, data);
+
+                } else {
+                    return null;
+                }
             }
         }
 
         UploadBitmap ui = new UploadBitmap();
+        ui.setDescriptionPublication(descriptionPublication.getText().toString());
         ui.execute(bitmap);
 
     }
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            //uploadButton.setEnabled(false);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Toast.makeText(this,
+                "MapsAPI : Connection Suspended",
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Toast.makeText(this,
+                "MapsAPI : Connection Failed",
+                Toast.LENGTH_LONG).show();
+    }
+
+
+    /**
+     * TODO : A expliquer
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+
 
 }

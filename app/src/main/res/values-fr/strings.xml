@@ -32,4 +32,8 @@
     <string name="gps_network_not_enabled">La géolocalisation est désactivée</string>
     <string name="cancel">Annuler</string>
     <string name="open_location_settings">Ouvrir les paramètres?</string>
+    <string name="error_invalid_password">Mot de passe incorrect</string>
+    <string name="error_field_required">Ce champ est requis</string>
+    <string name="error_invalid_login">Login invalide</string>
+    <string name="error_no_user_found">Aucun utilisateur trouvé</string>
 </resources>

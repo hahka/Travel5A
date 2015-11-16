@@ -114,6 +114,9 @@ public class MainActivity extends ActionBarActivity
 
     }
 
+
+
+
     /**
      * Lancement de l'application camera pour capturer une image
      */
@@ -252,13 +255,9 @@ public class MainActivity extends ActionBarActivity
         boolean gps_enabled = false;
         boolean network_enabled = false;
 
-        try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex) {}
+        gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-        try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch(Exception ex) {}
+        network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
         if(!gps_enabled && !network_enabled) {
             // notify user
@@ -288,6 +287,7 @@ public class MainActivity extends ActionBarActivity
         }
 
     }
+
 
 
 }
