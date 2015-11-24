@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Travel5A</string>
 
-    <string name="title_section1">Mes Moments</string>
+    <string name="title_section1">Mes Points d\'Intérêt</string>
     <string name="title_section2">A Proximité</string>
     <string name="title_section3">Paramètres</string>
 
@@ -36,4 +36,11 @@
     <string name="error_field_required">Ce champ est requis</string>
     <string name="error_invalid_login">Login invalide</string>
     <string name="error_no_user_found">Aucun utilisateur trouvé</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Mot de passe</string>
+    <string name="unable_to_geolocate">Géolocalisation impossible</string>
+    <string name="action_sign_in">Se connecter</string>
+    <string name="gallery">Galerie</string>
+    <string name="new_publication">Nouvelle Publication</string>
+
 </resources>

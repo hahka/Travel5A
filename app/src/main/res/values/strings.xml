@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Travel5A</string>
 
-    <string name="title_section1">My Moments</string>
+    <string name="title_section1">My Points Of Interest</string>
     <string name="title_section2">Near Me</string>
     <string name="title_section3">Settings</string>
 
@@ -31,7 +31,7 @@
     <string name="btnUploadToServer">Send to server!</string>
     <string name="record_video">Record a Video</string>
     <string name="take_picture">Take a Picture</string>
-    <string name="uploadingPublication">Uploading publication...</string>
+    <string name="uploadingPublication">Uploading publication…</string>
     <string name="publication_description">Write a brief description of your picture</string>
     <string name="gps_network_not_enabled">Location services are not enabled</string>
     <string name="open_location_settings">Open settings?</string>
@@ -40,4 +40,12 @@
     <string name="prompt_password">Password</string>
     <string name="prompt_email">Email</string>
     <string name="unable_to_geolocate">Unable to geolocate</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="error_invalid_login">Invalid login</string>
+    <string name="error_invalid_password">Invalid password</string>
+    <string name="error_no_user_found">No user found</string>
+    <string name="poiImageViewContentDescription">Image du POI</string>
+    <string name="gallery">Gallery</string>
+    <string name="new_publication">New Publication</string>
+
 </resources>

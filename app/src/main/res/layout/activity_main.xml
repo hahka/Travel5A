@@ -58,7 +58,7 @@
         fab:menu_labels_position="left"
         fab:menu_openDirection="up"
         fab:menu_backgroundColor="@android:color/transparent"
-        fab:menu_fab_label="New Publication">
+        fab:menu_fab_label="@string/new_publication">
         <!--fab:menu_fab_show_animation="@anim/my_show_animation"
         fab:menu_fab_hide_animation="@anim/my_hide_animation">-->
 
@@ -71,12 +71,12 @@
             fab:fab_label="@string/take_picture" />
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/btnRecordVideo"
+            android:id="@+id/btnOpenGallery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_camera"
+            android:src="@drawable/ic_gallery"
             fab:fab_size="mini"
-            fab:fab_label="@string/record_video" />
+            fab:fab_label="@string/gallery" />
 
     </com.github.clans.fab.FloatingActionMenu>
 

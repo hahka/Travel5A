@@ -102,14 +102,14 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
 
             mMap = map;
 
-            Double longitude = getArguments().getDouble("long");
+            /*Double longitude = getArguments().getDouble("long");
             Double latitude = getArguments().getDouble("lat");
             System.out.println(longitude + " / " + latitude);
             CameraUpdate center
-                    = CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude));
+                    = CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude));*/
             CameraUpdate zoom = CameraUpdateFactory.zoomTo(2);
 
-            map.moveCamera(center);
+            //map.moveCamera(center);
             map.animateCamera(zoom);
         }
 
@@ -145,6 +145,9 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
 
     @Override
     public void onConnected(Bundle bundle) {
+        Toast.makeText(getActivity(),
+                "MapsAPI : Connected",
+                Toast.LENGTH_LONG).show();
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {

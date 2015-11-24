@@ -108,4 +108,16 @@ public class PointOfInterest {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+    @Override
+    public String toString() {
+        return "PointOfInterest{"
+                + "id=" + id
+                + ", userId=" + userId
+                + ", description='" + description + '\''
+                + ", imagePath='" + imagePath + '\''
+                + ", latitude=" + latitude
+                + ", longitude=" + longitude
+                + '}';
+    }
 }

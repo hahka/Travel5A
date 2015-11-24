@@ -9,7 +9,7 @@
     <color name="app_primary">#bbbbbb</color>
     <color name="app_primary_pressed">#000000</color>
     <color name="app_ripple">#77FF77</color>
-
+    <color name="blue">#0000ff</color>
 
 
 </resources>

@@ -4,15 +4,24 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.os.Environment;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+
+import fr.hahka.travel5a.Config;
 
 /**
  * Created by thibautvirolle on 13/11/15.
  */
 public final class ImageUtils {
 
+    private static final String TAG = ImageUtils.class.getSimpleName();
+
+    /**
+     * Les classes utilitaires ne doivent pas avoir de constructeur public ou par défaut
+     */
     private ImageUtils() { }
 
     /**
@@ -75,5 +84,38 @@ public final class ImageUtils {
         matrix.postRotate(rotation);
 
         return Bitmap.createBitmap(bitmap, xStart, yStart, scaledWidth, scaledHeight, matrix, true);
+    }
+
+
+    /**
+     * Enregistre une image bitmap dans la mémoire interne de l'appareil
+     * @param bitmapImage L'image à enregistrer
+     * @param fileName Le nom à donner à l'image
+     * @return Le chemin du répertoire dans lequel l'image a été enregistrée
+     */
+    public static String saveToInternalSorage(Bitmap bitmapImage, String fileName) {
+
+        File directory = new File(Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                Config.IMAGE_DIRECTORY_NAME);
+
+        // Creation du repertoire s'il n'existe pas
+        if (!FileUtils.createFolderIfNotExists(directory))
+            return null;
+
+        // Creation de l'image
+        File mypath = new File(directory.getPath() + File.separator + fileName);
+
+        FileOutputStream fos = null;
+        try {
+
+            fos = new FileOutputStream(mypath);
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return directory.getAbsolutePath();
     }
 }

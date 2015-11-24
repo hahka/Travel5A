@@ -10,32 +10,34 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="false"
         android:layout_marginRight="10dp"
-        android:background="@drawable/placeholder" />
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/placeholder"
+        android:contentDescription="@string/poiImageViewContentDescription" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/publicationDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/thumbImage"
+        android:layout_toEndOf="@id/thumbImage"
         android:minLines="2"
         android:paddingTop="5dp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/reporter"
+        android:id="@+id/secondaryText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title"
+        android:drawableLeft="@drawable/ic_location"
+        android:drawableStart="@drawable/ic_location"
+        android:drawablePadding="5dp"
+        android:layout_below="@id/publicationDescription"
         android:layout_marginTop="5dp"
-        android:layout_toRightOf="@id/thumbImage" />
-
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/reporter"
-        android:layout_alignParentRight="true" />
+        android:layout_toRightOf="@id/thumbImage"
+        android:layout_toEndOf="@id/thumbImage"
+        android:gravity="fill_vertical" />
 
 </RelativeLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array
+        name="poi_dialog_items">
+        <item>@string/delete</item>
+    </string-array>
+
+    <string name="delete">Supprimer</string>
+
+</resources>

@@ -23,6 +23,11 @@ public final class StringUtils {
         return "ftp://" + user + ":" + password + "@" + host + "/" + path;
     }
 
+    /**
+     * Fonction pour transformer une String grâce à l'algorythme de hachage MD5
+     * @param s La chaîne de caractères à encrypter
+     * @return La chaîne encryptée
+     */
     public static String md5(String s) {
         MessageDigest digest;
         try {

@@ -55,4 +55,19 @@ public final class FileUtils {
 
         return Base64.encodeToString(b, Base64.DEFAULT);
     }
+
+
+    /**
+     * Crée un dossier si celui-ci n'existe pas
+     * @param file : le dossier en question
+     * @return (Boolean) True si le dossier existait déjà ou si il a été créé, False sinon
+     */
+    public static boolean createFolderIfNotExists(File file) {
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

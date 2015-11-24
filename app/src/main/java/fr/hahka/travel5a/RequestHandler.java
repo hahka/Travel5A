@@ -23,6 +23,11 @@ public class RequestHandler {
     // LogCat tag
     private static final String TAG = RequestHandler.class.getSimpleName();
 
+    /**
+     * Requète http GET
+     * @param uri l'url à appeler pour la requète GET
+     * @return (String) le résultat de la requète renvoyé par le serveur
+     */
     public String sendGetRequest(String uri) {
         try {
             URL url = new URL(uri);
@@ -43,6 +48,13 @@ public class RequestHandler {
         }
     }
 
+
+    /**
+     * Requète http POST
+     * @param requestURL l'url à appeler
+     * @param postDataParams les paramètres à envoyer au POST
+     * @return (String) Une valeur en fonction de la valeur de retour de la requète POST
+     */
     public String sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {
 

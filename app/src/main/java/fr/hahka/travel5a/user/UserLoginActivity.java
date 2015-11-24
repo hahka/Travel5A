@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.JsonReader;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -17,6 +18,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -40,8 +42,9 @@ import fr.hahka.travel5a.utils.StringUtils;
  */
 public class UserLoginActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    final private static int NO_USER_FOUND = 4002;
-    final private static int INVALID_PASSWORD = 4003;
+    private static final String TAG = UserLoginActivity.class.getSimpleName();
+    private static final int NO_USER_FOUND = 4002;
+    private static final int INVALID_PASSWORD = 4003;
     private UserLoginTask mAuthTask = null;
 
     // UI references.
@@ -182,8 +185,7 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
 
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(UserLoginActivity.this,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(UserLoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mLoginView.setAdapter(adapter);
@@ -202,6 +204,7 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
 
         String userId = null;
         String token = null;
+        String tokenExpiration = null;
         int error = -1;
 
 
@@ -216,16 +219,16 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
             userId = null;
             token = null;
 
-            //Log.d(TAG,"début connection");
+            Log.d(TAG, "10");
 
-            HttpPost httppost = new HttpPost("https://api.betaseries.com/members/auth");
+            HttpPost httppost = new HttpPost("http://thibautvirolle.fr/projet5atravel/user/auth.php");
             List<NameValuePair> postParameters = new ArrayList<>();
             //On crée la liste qui contiendra tous nos paramètres
             //Et on y rajoute nos paramètres
-            postParameters.add(new BasicNameValuePair("login", mEmail));
+            postParameters.add(new BasicNameValuePair("email", mEmail));
             postParameters.add(new BasicNameValuePair("password", mPassword));
-            //postParameters.add(new BasicNameValuePair("key", Config.BETASERIES_API_KEY));
 
+            Log.d(TAG, "11");
 
             // Parsing json
             try {
@@ -233,11 +236,14 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
                 httppost.setEntity(entity);
                 HttpClient httpclient = new DefaultHttpClient();
 
+                Log.d(TAG, "12");
+
                 HttpResponse response = httpclient.execute(httppost);
                 InputStream is = response.getEntity().getContent();
 
-
                 JsonReader reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
+
+                reader.setLenient(true);
 
                 reader.beginObject();
                 while (reader.hasNext() && (reader.peek().toString().equals("NAME"))) {
@@ -247,22 +253,22 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
                             reader.beginObject();
                             while (reader.hasNext()) {
                                 value = reader.nextName();
-                                //Log.d(TAG, value);
                                 if (value.equals("id")) {
-
                                     userId = String.valueOf(reader.nextInt());
-                                    //Log.d(TAG, String.valueOf(userId));
-
+                                } else if (value.equals("token")) {
+                                    token = String.valueOf(reader.nextString());
+                                } else if (value.equals("token_expiration")) {
+                                    tokenExpiration = String.valueOf(reader.nextString());
                                 } else {
                                     reader.skipValue();
                                 }
                             }
                             reader.endObject();
                             break;
-                        case "token":
+                        /*case "token":
                             token = reader.nextString();
                             //Log.d(TAG, token);
-                            break;
+                            break;*/
                         case "errors":
                             reader.beginArray();
                             while (reader.hasNext()) {
@@ -292,11 +298,9 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
 
                 is.close();
 
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
 
             return (userId != null);
         }

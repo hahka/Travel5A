@@ -4,7 +4,6 @@ package fr.hahka.travel5a.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 
 import fr.hahka.travel5a.poi.PointOfInterestSQLite;
 import fr.hahka.travel5a.user.UserSQLite;
@@ -15,8 +14,24 @@ import fr.hahka.travel5a.user.UserSQLite;
  */
 public class TravelSQLite extends SQLiteOpenHelper {
 
-    public TravelSQLite(Context context, String name, CursorFactory factory, int version) {
-        super(context, name, factory, version);
+    /**
+     * Version actuelle de la base de données
+     * En mettant à jour ce champ, la base sera mise à jour automatiquement
+     * selon la fonction onUpgrade définie plus bas
+     */
+    public static final int DATABASE_VERSION = 1;
+
+    /**
+     * Nom de la base de données pour la différencier
+     */
+    public static final String DATABASE_NAME = "Travel5A.db";
+
+    /**
+     * Constructeur de l'objet TravelSQLite
+     * @param context context de l'activité en cours
+     */
+    public TravelSQLite(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override

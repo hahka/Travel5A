@@ -3,17 +3,17 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<ListView
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="352dp"
+        android:layout_height="match_parent"
         android:id="@+id/momentsListView"
-        android:layout_gravity="center_horizontal" />-->
+        android:layout_gravity="center_horizontal" />
 
-    <ImageView
+    <!--<ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal" />-->
 
 
 </LinearLayout>

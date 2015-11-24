@@ -1,12 +1,12 @@
 package fr.hahka.travel5a.publication;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -24,6 +24,8 @@ import java.util.HashMap;
 import fr.hahka.travel5a.Config;
 import fr.hahka.travel5a.R;
 import fr.hahka.travel5a.RequestHandler;
+import fr.hahka.travel5a.poi.PointOfInterest;
+import fr.hahka.travel5a.poi.PointOfInterestDAO;
 import fr.hahka.travel5a.utils.FileUtils;
 import fr.hahka.travel5a.utils.ImageUtils;
 
@@ -116,9 +118,7 @@ public class NewPublicationActivity extends Activity
         latitude = bundle.getDouble("latitude");
         longitude = bundle.getDouble("longitude");
 
-        Log.d(TAG, fileUri);
-        File sd = Environment.getExternalStorageDirectory();
-        Log.d(TAG, sd.toString());
+
         image = null;
         if (fileUri != null) {
             image = new File(fileUri.split(":")[1]);
@@ -151,7 +151,11 @@ public class NewPublicationActivity extends Activity
                 super.onPreExecute();
                 uploadButton.setShowProgressBackground(true);
                 uploadButton.setIndeterminate(true);
-                Toast.makeText(getApplicationContext(), getString(R.string.uploadingPublication), Toast.LENGTH_LONG).show();
+                Toast.makeText(
+                        getApplicationContext(),
+                        getString(R.string.uploadingPublication),
+                        Toast.LENGTH_LONG
+                ).show();
             }
 
             @Override
@@ -165,7 +169,7 @@ public class NewPublicationActivity extends Activity
             @Override
             protected String doInBackground(Bitmap... params) {
 
-                if(mLastLocation != null) {
+                if (mLastLocation != null) {
                     HashMap<String, String> data = new HashMap<>();
 
                     data.put(UPLOAD_KEY, FileUtils.getEncodedBitmap(params[0]));
@@ -183,9 +187,23 @@ public class NewPublicationActivity extends Activity
             }
         }
 
-        UploadBitmap ui = new UploadBitmap();
-        ui.setDescriptionPublication(descriptionPublication.getText().toString());
-        ui.execute(bitmap);
+        PointOfInterest poi = new PointOfInterest();
+        poi.setDescription(descriptionPublication.getText().toString());
+        poi.setLatitude(mLastLocation.getLatitude());
+        poi.setLongitude(mLastLocation.getLongitude());
+        poi.setUserId(2);
+        poi.setImagePath(image.getName().replace(".jpg", ".bmp"));
+
+        ImageUtils.saveToInternalSorage(bitmap, image.getName().replace(".jpg", ".bmp"));
+
+        PointOfInterestDAO.insertPointOfInterest(getApplicationContext(), poi);
+
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        finish();
+        //UploadBitmap ui = new UploadBitmap();
+        //ui.setDescriptionPublication(descriptionPublication.getText().toString());
+        //ui.execute(bitmap);
 
     }
 
@@ -211,6 +229,16 @@ public class NewPublicationActivity extends Activity
         Toast.makeText(this,
                 "MapsAPI : Connection Failed",
                 Toast.LENGTH_LONG).show();
+        Log.d(TAG, connectionResult.toString());
+        switch (connectionResult.getErrorCode()) {
+
+            case ConnectionResult.SERVICE_MISSING:
+                break;
+
+            default:
+                break;
+
+        }
     }
 
 
@@ -224,6 +252,9 @@ public class NewPublicationActivity extends Activity
                 .addApi(LocationServices.API)
                 .build();
     }
+
+
+
 
 
 

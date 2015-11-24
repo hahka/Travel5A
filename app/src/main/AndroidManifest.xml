@@ -48,6 +48,8 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".publication.NewPublicationActivity"/>
+
+        <activity android:name=".gallery.GalleryProvider"/>
     </application>
 
 </manifest>

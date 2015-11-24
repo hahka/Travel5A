@@ -13,12 +13,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.github.clans.fab.FloatingActionButton;
 
 import fr.hahka.travel5a.Config;
+import fr.hahka.travel5a.gallery.GalleryProvider;
 import fr.hahka.travel5a.R;
 import fr.hahka.travel5a.poi.PointOfInterestFragment;
 import fr.hahka.travel5a.proximity.MapsFragment;
@@ -29,9 +30,9 @@ import fr.hahka.travel5a.utils.MediaHelper;
 /**
  * MainActivity : Classe principale de l'application
  */
-public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks
-{
+public class MainActivity extends AppCompatActivity
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks,
+        View.OnClickListener {
 
     // LogCat tag
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -80,40 +81,12 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        btnCapturePicture = (FloatingActionButton) findViewById(R.id.btnCapturePicture);
-        btnRecordVideo = (FloatingActionButton) findViewById(R.id.btnRecordVideo);
-
-
-
-        /**
-         * Capture image button click event
-         */
-        btnCapturePicture.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if(areLocationServicesEnabled()) {
-                    captureImage();
-                }
-            }
-        });
-
-        /**
-         * Record video button click event
-         */
-        btnRecordVideo.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if(areLocationServicesEnabled()) {
-                    recordVideo();
-                }
-            }
-        });
+        //btnCapturePicture = (FloatingActionButton) findViewById(R.id.btnCapturePicture);
+        findViewById(R.id.btnCapturePicture).setOnClickListener(this);
+        findViewById(R.id.btnOpenGallery).setOnClickListener(this);
 
 
     }
-
 
 
 
@@ -129,6 +102,17 @@ public class MainActivity extends ActionBarActivity
 
         // start the image capture Intent
         startActivityForResult(intent, Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+    }
+
+    /**
+     * Lancement de l'application camera pour capturer une image
+     */
+    private void openGallery() {
+        Intent intent = new Intent(MainActivity.this, GalleryProvider.class);
+
+        startActivityForResult(intent, Config.NEW_PUBLICATION_CODE);
+        /*Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, 1234);*/
     }
 
     /**
@@ -182,35 +166,17 @@ public class MainActivity extends ActionBarActivity
                 .commit();
     }
 
-    /**
-     * TODO: A expliquer
-     * @param number :
-     */
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-            default:
-                mTitle = "toto";
-                break;
-        }
-    }
 
     /**
      * TODO: A expliquer
      */
     public void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
+        if (actionBar != null) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setTitle(mTitle);
+        }
     }
 
     @Override
@@ -218,8 +184,24 @@ public class MainActivity extends ActionBarActivity
         super.onActivityResult(requestCode, resultCode, data);
         super.onResume();
 
+        switch (requestCode) {
+            case Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE:
+                Intent newPublicationIntent = new Intent(MainActivity.this, NewPublicationActivity.class);
+                newPublicationIntent.putExtra("fileuri", fileUri.toString());
+                startActivityForResult(newPublicationIntent, Config.NEW_PUBLICATION_CODE);
+                break;
 
-        if (requestCode == Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
+
+            case Config.NEW_PUBLICATION_CODE:
+                finish();
+                startActivity(getIntent());
+                break;
+
+
+            default:
+                break;
+        }
+        //if (requestCode == Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
 
             /*File sd = Environment.getExternalStorageDirectory();
             Log.d(TAG, fileUri.toString());
@@ -236,37 +218,37 @@ public class MainActivity extends ActionBarActivity
             }*/
             //imageView.setImageBitmap(imageBitmap);
 
-            Intent newPublicationIntent = new Intent(MainActivity.this, NewPublicationActivity.class);
+            /*Intent newPublicationIntent = new Intent(MainActivity.this, NewPublicationActivity.class);
             newPublicationIntent.putExtra("fileuri", fileUri.toString());
-            startActivityForResult(newPublicationIntent, Config.NEW_PUBLICATION_CODE);
+            startActivityForResult(newPublicationIntent, Config.NEW_PUBLICATION_CODE);*/
             /*Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), Config.PICK_IMAGE_REQUEST);*/
-        }
+        //}
+
 
     }
 
 
-
+    /**
+     * Fonction déterminant si les services de géolocalisation sont activés
+     * @return (Boolean) Vrai si les services sont activés, faux sinon
+     */
     public boolean areLocationServicesEnabled() {
 
-        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
+        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-        gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-        network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-        if(!gps_enabled && !network_enabled) {
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(context);
             dialog.setMessage(context.getResources().getString(R.string.gps_network_not_enabled));
-            dialog.setPositiveButton(context.getResources().getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {
+            dialog.setPositiveButton(
+                    context.getResources().getString(R.string.open_location_settings),
+                    new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    // TODO Auto-generated method stub
                     Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     context.startActivity(myIntent);
                     //get gps
@@ -288,6 +270,14 @@ public class MainActivity extends ActionBarActivity
 
     }
 
+    @Override
+    public void onClick(View v) {
 
 
+        if (v.getId() == R.id.btnCapturePicture) {
+            captureImage();
+        } else if (v.getId() == R.id.btnOpenGallery) {
+            openGallery();
+        }
+    }
 }

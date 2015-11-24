@@ -1,24 +1,32 @@
 package fr.hahka.travel5a.poi;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-import fr.hahka.travel5a.Config;
-import fr.hahka.travel5a.utils.StringUtils;
+import fr.hahka.travel5a.POIOptionsDialog;
 import fr.hahka.travel5a.R;
+import fr.hahka.travel5a.utils.StringUtils;
 import fr.hahka.travel5a.utils.download.FtpDownloadUtils;
 
 /**
@@ -27,9 +35,18 @@ import fr.hahka.travel5a.utils.download.FtpDownloadUtils;
 public class PointOfInterestFragment extends Fragment {
 
     /**
+     * TODO
+     */
+    public static final int DIALOG_FRAGMENT = 1;
+
+    /**
      * LogCat tag
      */
     private static final String TAG = PointOfInterestFragment.class.getSimpleName();
+
+    private ArrayList<PointOfInterest> listData;
+    private PointOfInterestListAdapter poiAdapter;
+
 
     private Bitmap bitmap;
 
@@ -52,28 +69,69 @@ public class PointOfInterestFragment extends Fragment {
             getActivity().finish();
         }
 
-        imageView = (ImageView) rootView.findViewById(R.id.imageView);
+        listData = PointOfInterestDAO.getLocalPointOfInterests(getActivity());
 
-        downloadFileFtp(Config.HOST,
-                "thibautvuh",
-                "23tivi03SOAD",
-                "www/projet5atravel/images/IMG_20151111_115324.bmp");
+
+        final ListView listView = (ListView) rootView.findViewById(R.id.momentsListView);
+
+        poiAdapter = new PointOfInterestListAdapter(getActivity(), listData, true);
+        listView.setAdapter(poiAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> a, View v, int position, long id) {
+                // TODO : Activity pour afficher en détail la publication
+                PointOfInterest poi = (PointOfInterest) listView.getItemAtPosition(position);
+                Toast.makeText(getActivity(), "Selected :" + " " + poi, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                PointOfInterest newsData = (PointOfInterest) listView.getItemAtPosition(position);
+                showDialog(newsData.getId());
+
+                return false;
+            }
+
+        });
+
 
         return rootView;
     }
 
 
-
-
     /**
-     * Checking device has camera hardware or not
+     * Vérification de la présence d'un APN sur le device
      */
     private boolean isDeviceSupportCamera() {
         return getActivity().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_CAMERA);
     }
 
+    /**
+     * Méthode pour afficher une dialogBox avec des options telles que "Supprimer"
+     * @param id : id de la valeur pour laquelle on veut afficher la dialogBox
+     */
+    void showDialog(int id) {
 
+
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+
+        DialogFragment dialogFrag = POIOptionsDialog.newInstance(id);
+        dialogFrag.setTargetFragment(this, DIALOG_FRAGMENT);
+        dialogFrag.show(getFragmentManager().beginTransaction(), "dialog");
+
+    }
 
 
     /**
@@ -137,4 +195,45 @@ public class PointOfInterestFragment extends Fragment {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case DIALOG_FRAGMENT:
+
+                if (resultCode == Activity.RESULT_OK) {
+                    // After Ok code.
+                    if (data.getStringExtra("value").equals("delete")) {
+
+                        PointOfInterestDAO.deletePointOfInterestById(getActivity(), data.getIntExtra("dataId", -1));
+
+                        listData = PointOfInterestDAO.getLocalPointOfInterests(getActivity());
+
+                        /* Rafraichissement de la vue avec les nouvelles données */
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                poiAdapter.refreshData(listData);
+                            };
+                        });
+
+
+                    } else {
+                        Toast.makeText(getActivity(), "nope", Toast.LENGTH_SHORT).show();
+                    }
+
+                    Log.d(TAG, "OK");
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    // After Cancel code.
+                    Toast.makeText(getActivity(), "KO", Toast.LENGTH_SHORT).show();
+                }
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
 }
+
