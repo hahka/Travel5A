@@ -116,6 +116,6 @@ public final class ImageUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return directory.getAbsolutePath();
+        return mypath.getPath();
     }
 }

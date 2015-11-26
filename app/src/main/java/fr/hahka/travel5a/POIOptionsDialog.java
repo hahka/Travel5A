@@ -35,7 +35,7 @@ public class POIOptionsDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.app_name)
+        builder//.setTitle(R.string.app_name)
                 .setItems(R.array.poi_dialog_items, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 

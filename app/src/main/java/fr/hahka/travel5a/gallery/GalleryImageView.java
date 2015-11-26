@@ -34,5 +34,6 @@ public class GalleryImageView extends ImageView {
 
         int width = getMeasuredWidth();
         setMeasuredDimension(width, (int) (width * mScale));
+
     }
 }

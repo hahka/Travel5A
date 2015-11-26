@@ -1,4 +1,4 @@
-package fr.hahka.travel5a;
+package fr.hahka.travel5a.utils.download;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import java.io.File;
 import java.lang.ref.WeakReference;
 
+import fr.hahka.travel5a.R;
 import fr.hahka.travel5a.utils.ImageUtils;
 
 /**

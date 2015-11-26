@@ -19,7 +19,7 @@ import android.view.View;
 import com.github.clans.fab.FloatingActionButton;
 
 import fr.hahka.travel5a.Config;
-import fr.hahka.travel5a.gallery.GalleryProvider;
+import fr.hahka.travel5a.gallery.GalleryProviderActivity;
 import fr.hahka.travel5a.R;
 import fr.hahka.travel5a.poi.PointOfInterestFragment;
 import fr.hahka.travel5a.proximity.MapsFragment;
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity
      * Lancement de l'application camera pour capturer une image
      */
     private void openGallery() {
-        Intent intent = new Intent(MainActivity.this, GalleryProvider.class);
+        Intent intent = new Intent(MainActivity.this, GalleryProviderActivity.class);
 
         startActivityForResult(intent, Config.NEW_PUBLICATION_CODE);
         /*Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

@@ -19,7 +19,7 @@ public class TravelSQLite extends SQLiteOpenHelper {
      * En mettant à jour ce champ, la base sera mise à jour automatiquement
      * selon la fonction onUpgrade définie plus bas
      */
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
     /**
      * Nom de la base de données pour la différencier
@@ -47,7 +47,7 @@ public class TravelSQLite extends SQLiteOpenHelper {
         //comme ça lorsque je change la version les id repartent de 0
         UserSQLite.upgrade(db, oldVersion, newVersion);
         PointOfInterestSQLite.upgrade(db, oldVersion, newVersion);
-        onCreate(db);
+        //onCreate(db);
     }
 
 }

@@ -5,14 +5,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import fr.hahka.travel5a.ImageLocalDownloaderTask;
 import fr.hahka.travel5a.R;
+import fr.hahka.travel5a.utils.download.ImageLocalDownloaderTask;
 
 /**
  * Created by thibautvirolle on 22/11/15.
@@ -42,8 +40,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryV
                 from(parent.getContext()).
                 inflate(R.layout.activity_gallery_item, parent, false);
 
-        //itemView.setLayoutParams(new GridView.LayoutParams(5, 100));
-
         return new GalleryViewHolder(itemView, parent.getContext());
 
 
@@ -52,9 +48,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryV
     @Override
     public void onBindViewHolder(GalleryViewHolder holder, int position) {
 
+        holder.galleryImageView.setImageDrawable(null);
+
         File file = (File) listData.get(position);
 
-        new ImageLocalDownloaderTask(holder.galleryImageView, mContext).execute(file.getPath());
+        holder.task.cancel(true);
+        holder.task = new ImageLocalDownloaderTask(holder.galleryImageView, mContext);
+        holder.task.execute(file.getPath());
 
     }
 
@@ -73,7 +73,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryV
      */
     public static class GalleryViewHolder extends RecyclerView.ViewHolder {
 
-        protected ImageView galleryImageView;
+        protected GalleryImageView galleryImageView;
+
+        protected ImageLocalDownloaderTask task;
 
         /**
          * Constructeur pour le ViewHolder
@@ -83,15 +85,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryV
         public GalleryViewHolder(View v, final Context c) {
             super(v);
 
-            galleryImageView = (ImageView) v.findViewById(R.id.galleryItemView);
-
-            /*Display display = ((WindowManager) c.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-            int rotationEcran = display.getRotation();
-            // Et positionner ainsi le nombre de degrés de rotation
-            if (rotationEcran == Surface.ROTATION_90 || rotationEcran == Surface.ROTATION_270) {
-
-            }*/
-
+            galleryImageView = (GalleryImageView) v.findViewById(R.id.galleryItemView);
+            task = new ImageLocalDownloaderTask(galleryImageView, c);
         }
     }
 

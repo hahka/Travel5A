@@ -187,14 +187,16 @@ public class NewPublicationActivity extends Activity
             }
         }
 
+
+        String filePath = ImageUtils.saveToInternalSorage(bitmap, image.getName().replace(".jpg", ".bmp"));
+
         PointOfInterest poi = new PointOfInterest();
         poi.setDescription(descriptionPublication.getText().toString());
         poi.setLatitude(mLastLocation.getLatitude());
         poi.setLongitude(mLastLocation.getLongitude());
         poi.setUserId(2);
-        poi.setImagePath(image.getName().replace(".jpg", ".bmp"));
+        poi.setImagePath(filePath);
 
-        ImageUtils.saveToInternalSorage(bitmap, image.getName().replace(".jpg", ".bmp"));
 
         PointOfInterestDAO.insertPointOfInterest(getApplicationContext(), poi);
 
@@ -252,10 +254,5 @@ public class NewPublicationActivity extends Activity
                 .addApi(LocationServices.API)
                 .build();
     }
-
-
-
-
-
 
 }

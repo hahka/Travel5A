@@ -49,7 +49,7 @@
 
         <activity android:name=".publication.NewPublicationActivity"/>
 
-        <activity android:name=".gallery.GalleryProvider"/>
+        <activity android:name=".gallery.GalleryProviderActivity"/>
     </application>
 
 </manifest>

@@ -1,6 +1,14 @@
 package fr.hahka.travel5a.poi;
 
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import fr.hahka.travel5a.Config;
+import fr.hahka.travel5a.utils.FileUtils;
 
 /**
  * Created by thibautvirolle on 14/11/15.
@@ -55,6 +63,12 @@ public final class PointOfInterestSQLite {
     public static final String COL_NULLABLE = "NULLABLE";
 
     /**
+     * Colonne NULLABLE : Colonne servant à savoir si les données sont sur le serveur,
+     * et à les synchroniser avec le serveur le cas échéant
+     */
+    public static final String COL_ID_SERVER = "ID_SERVER";
+
+    /**
      * Requète SQL pour créer la table POI
      */
     private static final String CREATE_BDD = "CREATE TABLE " + TABLE_NAME + " ("
@@ -65,6 +79,7 @@ public final class PointOfInterestSQLite {
             + COL_IMAGE_PATH + " TEXT NOT NULL, "
             + COL_SOUND_PATH + " TEXT, "
             + COL_NULLABLE + " INTEGER, "
+            + COL_ID_SERVER + " INTEGER, "
             + COL_USER_ID + " INTEGER NOT NULL REFERENCES USER(ID));";
 
 
@@ -91,7 +106,38 @@ public final class PointOfInterestSQLite {
     public static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //On peut faire ce qu'on veut ici moi j'ai décidé de supprimer la table et de la recréer
         //comme ça lorsque je change la version les id repartent de 0
-        db.execSQL("DROP TABLE " + TABLE_NAME + ";");
+        //db.execSQL("DROP TABLE " + TABLE_NAME + ";");
+        switch (newVersion) {
+
+            case 2:
+
+                db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_ID_SERVER + " INTEGER;");
+
+                File directory = new File(Environment
+                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                        Config.IMAGE_DIRECTORY_NAME);
+
+                // Creation du repertoire s'il n'existe pas
+                if (!FileUtils.createFolderIfNotExists(directory))
+                    return;
+
+                ArrayList<PointOfInterest> list = PointOfInterestDAO.getLocalPointOfInterests(db);
+
+                for (int i = 0; i < list.size(); i++) {
+
+                    ContentValues args = new ContentValues();
+                    args.put(COL_IMAGE_PATH,
+                            directory.getPath() + File.separator + list.get(i).getImagePath());
+                    db.update(TABLE_NAME, args, COL_ID + "=" + list.get(i).getId(), null);
+
+                }
+
+                break;
+
+            default:
+                break;
+
+        }
     }
 
 

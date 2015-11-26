@@ -11,13 +11,14 @@ import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -32,7 +33,9 @@ import fr.hahka.travel5a.utils.download.FtpDownloadUtils;
 /**
  * Created by thibautvirolle on 08/11/15.
  */
-public class PointOfInterestFragment extends Fragment {
+public class PointOfInterestFragment extends Fragment
+    implements PointOfInterestCustomClicker.OnItemClickListener,
+    PointOfInterestCustomClicker.OnItemLongClickListener{
 
     /**
      * TODO
@@ -47,6 +50,7 @@ public class PointOfInterestFragment extends Fragment {
     private ArrayList<PointOfInterest> listData;
     private PointOfInterestListAdapter poiAdapter;
 
+    private RecyclerView listView;
 
     private Bitmap bitmap;
 
@@ -72,11 +76,18 @@ public class PointOfInterestFragment extends Fragment {
         listData = PointOfInterestDAO.getLocalPointOfInterests(getActivity());
 
 
-        final ListView listView = (ListView) rootView.findViewById(R.id.momentsListView);
+        listView = (RecyclerView) rootView.findViewById(R.id.momentsListView);
 
-        poiAdapter = new PointOfInterestListAdapter(getActivity(), listData, true);
+        listView.setHasFixedSize(true);
+
+        LinearLayoutManager mLayoutManager
+                = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        listView.setLayoutManager(mLayoutManager);
+
+        poiAdapter = new PointOfInterestListAdapter(getActivity(), this, listData, true);
         listView.setAdapter(poiAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> a, View v, int position, long id) {
@@ -97,8 +108,7 @@ public class PointOfInterestFragment extends Fragment {
                 return false;
             }
 
-        });
-
+        });*/
 
         return rootView;
     }
@@ -118,13 +128,13 @@ public class PointOfInterestFragment extends Fragment {
      */
     void showDialog(int id) {
 
-
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
             ft.remove(prev);
         }
         ft.addToBackStack(null);
+
 
 
         DialogFragment dialogFrag = POIOptionsDialog.newInstance(id);
@@ -234,6 +244,20 @@ public class PointOfInterestFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onItemClick(View view) {
 
+        PointOfInterest poi = listData.get(listView.getChildPosition(view));
+        showDialog(poi.getId());
+
+    }
+
+    @Override
+    public void onItemLongClick(View view) {
+
+        PointOfInterest poi = listData.get(listView.getChildPosition(view));
+        showDialog(poi.getId());
+
+    }
 }
 
