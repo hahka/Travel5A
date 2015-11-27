@@ -11,14 +11,29 @@ public class GalleryImageView extends ImageView {
 
     private float mScale = 1f;
 
+    /**
+     * Constructeur par défaut de l'objet
+     * @param context : Context dans lequel l'objet est créé
+     * @param attrs : Attributs pour la création de l'objet
+     * @param defStyleAttr : Style pour la création de l'objet
+     */
     public GalleryImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
+    /**
+     * Constructeur par défaut de l'objet
+     * @param context : Context dans lequel l'objet est créé
+     * @param attrs : Attributs pour la création de l'objet
+     */
     public GalleryImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
+    /**
+     * Constructeur par défaut de l'objet
+     * @param context : Context dans lequel l'objet est créé
+     */
     public GalleryImageView(Context context) {
         super(context);
     }

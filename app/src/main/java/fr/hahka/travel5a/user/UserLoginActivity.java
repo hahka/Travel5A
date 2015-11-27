@@ -8,8 +8,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.JsonReader;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,7 +16,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -28,11 +25,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.hahka.travel5a.Config;
 import fr.hahka.travel5a.R;
 import fr.hahka.travel5a.utils.StringUtils;
 
@@ -138,18 +137,9 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-
-            //UserInterface.showProgress(false, mLoginFormView, mProgressView);
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-
-            //UserInterface.showProgress(true, mLoginFormView, mProgressView);
             mAuthTask = new UserLoginTask(login, password);
-
-
             mAuthTask.execute((Void) null);
-
         }
     }
 
@@ -202,12 +192,19 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
         private final String mPassword;
 
 
-        String userId = null;
-        String token = null;
-        String tokenExpiration = null;
-        int error = -1;
+        private String userId = null;
+        /*String token = null;
+        String tokenExpiration = null;*/
+        private int error = -1;
+
+        private int id;
 
 
+        /**
+         * Constructeur de la tache pour se connecter
+         * @param email : l'email utilisateur
+         * @param password : le mot de passe utilisateur
+         */
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = StringUtils.md5(password);
@@ -217,18 +214,16 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
         protected Boolean doInBackground(Void... params) {
 
             userId = null;
-            token = null;
-
-            Log.d(TAG, "10");
+            id = -1;
+            //token = null;
 
             HttpPost httppost = new HttpPost("http://thibautvirolle.fr/projet5atravel/user/auth.php");
             List<NameValuePair> postParameters = new ArrayList<>();
             //On crée la liste qui contiendra tous nos paramètres
             //Et on y rajoute nos paramètres
+            postParameters.add(new BasicNameValuePair("auth", "auth"));
             postParameters.add(new BasicNameValuePair("email", mEmail));
             postParameters.add(new BasicNameValuePair("password", mPassword));
-
-            Log.d(TAG, "11");
 
             // Parsing json
             try {
@@ -236,65 +231,23 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
                 httppost.setEntity(entity);
                 HttpClient httpclient = new DefaultHttpClient();
 
-                Log.d(TAG, "12");
-
                 HttpResponse response = httpclient.execute(httppost);
                 InputStream is = response.getEntity().getContent();
 
-                JsonReader reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
-
-                reader.setLenient(true);
-
-                reader.beginObject();
-                while (reader.hasNext() && (reader.peek().toString().equals("NAME"))) {
-                    String value = reader.nextName();
-                    switch (value) {
-                        case "user":
-                            reader.beginObject();
-                            while (reader.hasNext()) {
-                                value = reader.nextName();
-                                if (value.equals("id")) {
-                                    userId = String.valueOf(reader.nextInt());
-                                } else if (value.equals("token")) {
-                                    token = String.valueOf(reader.nextString());
-                                } else if (value.equals("token_expiration")) {
-                                    tokenExpiration = String.valueOf(reader.nextString());
-                                } else {
-                                    reader.skipValue();
-                                }
-                            }
-                            reader.endObject();
-                            break;
-                        /*case "token":
-                            token = reader.nextString();
-                            //Log.d(TAG, token);
-                            break;*/
-                        case "errors":
-                            reader.beginArray();
-                            while (reader.hasNext()) {
-                                reader.beginObject();
-                                while (reader.hasNext()) {
-                                    value = reader.nextName();
-                                    if (value.equals("code")) {
-                                        error = reader.nextInt();
-                                    } else {
-                                        reader.skipValue();
-                                    }
-                                }
-                                reader.endObject();
-                            }
-
-                            reader.endArray();
-                            break;
-                        default:
-                            reader.skipValue();
-                            break;
-                    }
-
+                BufferedReader r = new BufferedReader(new InputStreamReader(is));
+                StringBuilder total = new StringBuilder();
+                String line;
+                while ((line = r.readLine()) != null) {
+                    total.append(line);
                 }
 
-                reader.endObject();
-                reader.close();
+                userId = total.toString();
+
+                try {
+                    id = Integer.parseInt(userId.trim());
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                }
 
                 is.close();
 
@@ -302,7 +255,7 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
                 e.printStackTrace();
             }
 
-            return (userId != null);
+            return ((userId != null) && (id > 0));
         }
 
         @Override
@@ -310,17 +263,13 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
             mAuthTask = null;
 
             if (success) {
-                // Connexion réussie. Renvoie les objets user et planningList à DrawerActivity
 
                 Intent returnIntent = new Intent();
-                //returnIntent.putExtra(Config.USER_ID, userId);
-                //returnIntent.putExtra(Config.TOKEN, token);
-                //returnIntent.putExtra(Config.USER, user);
+                returnIntent.putExtra(Config.USER_ID, userId);
                 setResult(RESULT_OK, returnIntent);
                 finish();
             } else {
 
-                //UserInterface.showProgress(false, mLoginFormView, mProgressView);
                 switch (error) {
                     case NO_USER_FOUND:
                         mLoginView.setError(getString(R.string.error_no_user_found));
@@ -333,6 +282,8 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
                         break;
 
                     default:
+                        mLoginView.setError(getString(R.string.error_no_match));
+                        mLoginView.requestFocus();
                         break;
 
                 }
@@ -342,7 +293,6 @@ public class UserLoginActivity extends Activity implements LoaderManager.LoaderC
         @Override
         protected void onCancelled() {
             mAuthTask = null;
-            //UserInterface.showProgress(false, mLoginFormView, mProgressView);
         }
 
     }

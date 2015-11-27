@@ -19,6 +19,10 @@ public class PointOfInterest {
 
     private double longitude;
 
+    private String username;
+
+    private int dataOnServerId;
+
 
     /**
      * Constructeur par défaut
@@ -107,6 +111,22 @@ public class PointOfInterest {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public int getDataOnServerId() {
+        return dataOnServerId;
+    }
+
+    public void setDataOnServerId(int dataOnServerId) {
+        this.dataOnServerId = dataOnServerId;
     }
 
     @Override

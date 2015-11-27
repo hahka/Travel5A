@@ -2,6 +2,7 @@ package fr.hahka.travel5a.poi;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,14 +30,13 @@ public class PointOfInterestListAdapter extends RecyclerView.Adapter<PointOfInte
 
     private PointOfInterestFragment mFragment;
 
-    public PointOfInterestListAdapter(Context context, ArrayList listData, boolean local) {
-        this.listData = listData;
-        this.layoutInflater = LayoutInflater.from(context);
-        this.local = local;
-        this.mContext = context;
-    }
-
-
+    /**
+     * Constructeur de l'adapter
+     * @param context : context dans lequel il est appelé
+     * @param fragment : fragment ou est utilisé l'adapter
+     * @param listData : les données à adapter
+     * @param local : les données sont-elles locales? TODO (Oui pour l'instant)
+     */
     public PointOfInterestListAdapter(Context context,
                                       PointOfInterestFragment fragment,
                                       ArrayList listData,
@@ -65,6 +65,7 @@ public class PointOfInterestListAdapter extends RecyclerView.Adapter<PointOfInte
 
         PointOfInterest poi = (PointOfInterest) listData.get(position);
 
+        Log.d(TAG, poi.getImagePath());
         new ImageLocalDownloaderTask(holder.thumbImage, mContext).execute(poi.getImagePath());
 
         holder.descriptionView.setText(poi.getDescription());
@@ -103,42 +104,16 @@ public class PointOfInterestListAdapter extends RecyclerView.Adapter<PointOfInte
         return listData.size();
     }
 
-    /*public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-        if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.moments_list_row, null);
-            holder = new ViewHolder();
-            holder.descriptionView = (TextView) convertView.findViewById(R.id.publicationDescription);
-            holder.secondaryTextView = (TextView) convertView.findViewById(R.id.secondaryText);
-            holder.thumbImage = (ImageView) convertView.findViewById(R.id.thumbImage);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
 
-        PointOfInterest poi = (PointOfInterest) listData.get(position);
-
-
-        ArrayList<String> myAddress = GeocoderUtils.getAddressFromLocation(mContext, poi.getLatitude(), poi.getLongitude());
-
-
-        holder.descriptionView.setText(poi.getDescription());
-
-        holder.secondaryTextView.setText(
-                GeocoderUtils.getFormatedAddressFromLocation(
-                        mContext,
-                        poi.getLatitude(),
-                        poi.getLongitude(),
-                        "Ci, Co"));
-
-        if (holder.thumbImage != null) {
-            new ImageDownloaderTask(holder.thumbImage).execute(poi.getImagePath());
-        }
-
-        Log.d(TAG, "ID : " + poi.getId());
-
-        return convertView;
-    }*/
+    /**
+     * Sert à actualiser la liste après une modification
+     * @param data : liste des POIs
+     */
+    public void refreshData(ArrayList<PointOfInterest> data) {
+        this.listData.clear();
+        this.listData = data;
+        notifyDataSetChanged();
+    }
 
     /**
      * ViewHolder servant à garder une référence sur la vue associé à un objet
@@ -166,20 +141,8 @@ public class PointOfInterestListAdapter extends RecyclerView.Adapter<PointOfInte
             descriptionView = (TextView) v.findViewById(R.id.publicationDescription);
             secondaryTextView = (TextView) v.findViewById(R.id.secondaryText);
 
-            /*Display display = ((WindowManager) c.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-            int rotationEcran = display.getRotation();
-            // Et positionner ainsi le nombre de degrés de rotation
-            if (rotationEcran == Surface.ROTATION_90 || rotationEcran == Surface.ROTATION_270) {
-
-            }*/
 
         }
     }
 
-
-    public void refreshData(ArrayList<PointOfInterest> data) {
-        this.listData.clear();
-        this.listData = data;
-        notifyDataSetChanged();
-    }
 }

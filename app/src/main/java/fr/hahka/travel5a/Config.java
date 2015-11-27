@@ -8,7 +8,17 @@ public final class Config {
     /**
      * Adresse de l'hote pour récupérer les fichiers par FTP
      */
-    public static final String HOST = "ftp.cluster017.ovh.net";
+    public static final int AUTH_REQUEST_CODE = 10000;
+
+    /**
+     * Adresse de l'hote pour récupérer les fichiers par FTP
+     */
+    public static final String USER_ID = "user_id";
+
+    /**
+     * Adresse de l'hote pour récupérer les fichiers par FTP
+     */
+    public static final String HOST = "ftp.cluster017.ovh.net/";
 
     /**
      * Adresse du fichier utilisé pour uploader les fichiers sur le serveur
@@ -19,6 +29,12 @@ public final class Config {
      * Adresse du fichier utilisé pour récupérer les points d'intérêts
      */
     public static final String GET_POI_URL = "http://thibautvirolle.fr/projet5atravel/get_poi.php";
+
+
+    /**
+     * Adresse du fichier utilisé pour récupérer les points d'intérêts proches
+     */
+    public static final String GET_NEAR_POI_URL = "http://thibautvirolle.fr/projet5atravel/get_near_poi.php";
 
 
     /**

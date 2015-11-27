@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -39,7 +38,8 @@ public final class PointOfInterestDAO {
                 PointOfInterestSQLite.COL_IMAGE_PATH,
                 PointOfInterestSQLite.COL_LATITUDE,
                 PointOfInterestSQLite.COL_LONGITUDE,
-                PointOfInterestSQLite.COL_USER_ID
+                PointOfInterestSQLite.COL_USER_ID,
+                PointOfInterestSQLite.COL_ID_SERVER
         };
 
         String sortOrder = PointOfInterestSQLite.COL_ID + " DESC";
@@ -55,7 +55,6 @@ public final class PointOfInterestDAO {
         );
 
         if (cursor.getCount() > 0) {
-            //Toast.makeText(context, cursor.getCount() + " données", Toast.LENGTH_SHORT).show();
             cursor.moveToFirst();
             while (!cursor.isLast()) {
 
@@ -85,7 +84,8 @@ public final class PointOfInterestDAO {
                 PointOfInterestSQLite.COL_IMAGE_PATH,
                 PointOfInterestSQLite.COL_LATITUDE,
                 PointOfInterestSQLite.COL_LONGITUDE,
-                PointOfInterestSQLite.COL_USER_ID
+                PointOfInterestSQLite.COL_USER_ID,
+                PointOfInterestSQLite.COL_ID_SERVER
         };
 
         String sortOrder = PointOfInterestSQLite.COL_ID + " DESC";
@@ -100,10 +100,7 @@ public final class PointOfInterestDAO {
                 sortOrder                                 // The sort order
         );
 
-        if (cursor.getCount() <= 0) {
-            //Toast.makeText(context, "Aucune données", Toast.LENGTH_SHORT).show();
-        } else {
-            //Toast.makeText(context, cursor.getCount() + " données", Toast.LENGTH_SHORT).show();
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             while (!cursor.isLast()) {
 
@@ -134,6 +131,8 @@ public final class PointOfInterestDAO {
                 cursor.getColumnIndexOrThrow(PointOfInterestSQLite.COL_IMAGE_PATH)));
         poi.setUserId(cursor.getInt(
                 cursor.getColumnIndexOrThrow(PointOfInterestSQLite.COL_USER_ID)));
+        poi.setDataOnServerId(cursor.getInt(
+                cursor.getColumnIndexOrThrow(PointOfInterestSQLite.COL_ID_SERVER)));
 
         return poi;
     }
@@ -195,8 +194,6 @@ public final class PointOfInterestDAO {
      * @param rowId L'id de la ligne à supprimer
      */
     public static void deletePointOfInterestById(Context c, int rowId) {
-
-        Toast.makeText(c, String.valueOf(rowId), Toast.LENGTH_SHORT).show();
 
         TravelSQLite travelSQLite = new TravelSQLite(c);
         SQLiteDatabase db = travelSQLite.getWritableDatabase();

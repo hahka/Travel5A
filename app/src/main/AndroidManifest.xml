@@ -50,6 +50,8 @@
         <activity android:name=".publication.NewPublicationActivity"/>
 
         <activity android:name=".gallery.GalleryProviderActivity"/>
+
+        <activity android:name=".user.UserLoginActivity"/>
     </application>
 
 </manifest>

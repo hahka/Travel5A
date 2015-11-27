@@ -4,48 +4,38 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import fr.hahka.travel5a.POIOptionsDialog;
 import fr.hahka.travel5a.R;
-import fr.hahka.travel5a.utils.StringUtils;
-import fr.hahka.travel5a.utils.download.FtpDownloadUtils;
 
 /**
  * Created by thibautvirolle on 08/11/15.
  */
 public class PointOfInterestFragment extends Fragment
     implements PointOfInterestCustomClicker.OnItemClickListener,
-    PointOfInterestCustomClicker.OnItemLongClickListener{
+    PointOfInterestCustomClicker.OnItemLongClickListener {
 
     /**
      * TODO
      */
     public static final int DIALOG_FRAGMENT = 1;
 
-    /**
-     * LogCat tag
-     */
-    private static final String TAG = PointOfInterestFragment.class.getSimpleName();
+    private OnPoiSelectedListener mCallback;
+
 
     private ArrayList<PointOfInterest> listData;
     private PointOfInterestListAdapter poiAdapter;
@@ -57,6 +47,8 @@ public class PointOfInterestFragment extends Fragment
     private File file;
 
     private ImageView imageView;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -87,30 +79,24 @@ public class PointOfInterestFragment extends Fragment
         poiAdapter = new PointOfInterestListAdapter(getActivity(), this, listData, true);
         listView.setAdapter(poiAdapter);
 
-        /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> a, View v, int position, long id) {
-                // TODO : Activity pour afficher en détail la publication
-                PointOfInterest poi = (PointOfInterest) listView.getItemAtPosition(position);
-                Toast.makeText(getActivity(), "Selected :" + " " + poi, Toast.LENGTH_LONG).show();
-            }
-        });
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                PointOfInterest newsData = (PointOfInterest) listView.getItemAtPosition(position);
-                showDialog(newsData.getId());
-
-                return false;
-            }
-
-        });*/
-
         return rootView;
+    }
+
+
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception.
+        try {
+            mCallback = (OnPoiSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
     }
 
 
@@ -144,67 +130,6 @@ public class PointOfInterestFragment extends Fragment
     }
 
 
-    /**
-     * TODO : A expliquer
-     */
-    private void downloadFileFtp(final String downloadUrl, final String user, final String password,
-                                 final String path) {
-
-
-        class DownloadImage extends AsyncTask<String, Void, File> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                Toast.makeText(getActivity(), "Downloading image", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            protected void onPostExecute(File f) {
-                super.onPostExecute(f);
-                if (f == null) {
-                    Toast.makeText(getActivity(), "null", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getActivity(), "ok : not null", Toast.LENGTH_LONG).show();
-                }
-
-                if (f != null) {
-                    bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
-
-                    int width = getResources().getDisplayMetrics().widthPixels;
-                    int height = (width * bitmap.getHeight()) / bitmap.getWidth();
-                    bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-
-                    imageView.setImageBitmap(bitmap);
-                }
-            }
-
-            @Override
-            protected File doInBackground(String... params) {
-                String ftpUrlParam = params[0];
-
-                try {
-                    file = new File(
-                            FtpDownloadUtils.downloadFile(
-                                    ftpUrlParam,
-                                    Environment.getExternalStorageDirectory().getPath()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return file;
-            }
-        }
-
-        String ftpurl = StringUtils.getFtpUrl(user, password, downloadUrl, path);
-
-        DownloadImage ui = new DownloadImage();
-        Toast.makeText(getActivity(), ftpurl, Toast.LENGTH_LONG).show();
-        ui.execute(ftpurl);
-
-
-
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
@@ -226,15 +151,7 @@ public class PointOfInterestFragment extends Fragment
                             };
                         });
 
-
-                    } else {
-                        Toast.makeText(getActivity(), "nope", Toast.LENGTH_SHORT).show();
                     }
-
-                    Log.d(TAG, "OK");
-                } else if (resultCode == Activity.RESULT_CANCELED) {
-                    // After Cancel code.
-                    Toast.makeText(getActivity(), "KO", Toast.LENGTH_SHORT).show();
                 }
 
                 break;
@@ -247,8 +164,11 @@ public class PointOfInterestFragment extends Fragment
     @Override
     public void onItemClick(View view) {
 
-        PointOfInterest poi = listData.get(listView.getChildPosition(view));
-        showDialog(poi.getId());
+        int position = listView.getChildPosition(view);
+        PointOfInterest poi = listData.get(position);
+
+        // Notify the parent activity of selected item
+        mCallback.onPoiSelected(poi, position);
 
     }
 
@@ -258,6 +178,20 @@ public class PointOfInterestFragment extends Fragment
         PointOfInterest poi = listData.get(listView.getChildPosition(view));
         showDialog(poi.getId());
 
+    }
+
+
+    /**
+     * The container Activity must implement this interface so the frag can deliver messages
+     */
+    public interface OnPoiSelectedListener {
+
+        /**
+         * Called by HeadlinesFragment when a list item is selected
+         * @param poi : poi sélectionné
+         * @param position : position du poi sélectionné
+         */
+        public void onPoiSelected(PointOfInterest poi, int position);
     }
 }
 

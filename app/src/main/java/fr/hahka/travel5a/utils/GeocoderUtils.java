@@ -16,6 +16,13 @@ public final class GeocoderUtils {
 
     private GeocoderUtils() { }
 
+    /**
+     * Récupère les adresses en fonction de la latitude et de la longitude
+     * @param context : context...
+     * @param latitude : latitude de la position
+     * @param longitude : longitude de la position
+     * @return : les adresses
+     */
     public static ArrayList<String> getAddressFromLocation(Context context, double latitude, double longitude) {
         Geocoder geocoder;
         List<Address> yourAddresses;
@@ -39,31 +46,46 @@ public final class GeocoderUtils {
     }
 
 
-    public static String getFormatedAddressFromLocation(Context context, double latitude, double longitude, String format) {
+
+    /**
+     * Récupère une adresse en fonction de la latitude et de la longitude
+     * @param context : context...
+     * @param latitude : latitude de la position
+     * @param longitude : longitude de la position
+     * @param format : le format désiré de l'adresse
+     * @return : l'adresse (première proposition)
+     */
+    public static String getFormatedAddressFromLocation(
+            Context context,
+            double latitude,
+            double longitude,
+            String format) {
 
         ArrayList<String> address = getAddressFromLocation(context, latitude, longitude);
 
-        String formatedAddress;
+        String formatedAddress = "Adresse inconnue";
         /*
             Ad = address
             Ci = City
             Co = Country
          */
-        switch(format) {
+        if (address.size() > 1) {
+            switch (format) {
 
-            case "Ci, Co" :
-                formatedAddress = address.get(1) + ", " + address.get(2);
-                break;
+                case "Ci, Co":
+                    formatedAddress = address.get(1) + ", " + address.get(2);
+                    break;
 
-            case "Co" :
-                formatedAddress = address.get(2);
-                break;
+                case "Co":
+                    formatedAddress = address.get(2);
+                    break;
 
-            default :
-                formatedAddress = address.get(0) + ", " + address.get(1) + ", " + address.get(2);
-                break;
+                default:
+                    formatedAddress = address.get(0) + ", " + address.get(1) + ", " + address.get(2);
+                    break;
 
 
+            }
         }
 
         return formatedAddress;

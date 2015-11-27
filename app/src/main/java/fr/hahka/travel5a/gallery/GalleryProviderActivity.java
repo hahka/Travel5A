@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import java.io.File;
@@ -31,6 +30,8 @@ public class GalleryProviderActivity extends Activity {
 
     private RecyclerView lvItems;
 
+    private String userId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,9 +39,10 @@ public class GalleryProviderActivity extends Activity {
 
         context = GalleryProviderActivity.this;
 
+        userId = getIntent().getStringExtra(Config.USER_ID);
+
         String[] projection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
         String selection = MediaStore.Images.Media.LATITUDE + " NOT NULL";
-        //String selection = null;
         String [] selectionArgs = null;
         Cursor mImageCursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection, selection, selectionArgs, null);
@@ -84,13 +86,24 @@ public class GalleryProviderActivity extends Activity {
                     @Override
                     public void onItemClick(View view, int position) {
 
-                        Intent newPublicationIntent = new Intent(GalleryProviderActivity.this, NewPublicationActivity.class);
+                        Intent newPublicationIntent = new Intent(
+                                GalleryProviderActivity.this,
+                                NewPublicationActivity.class);
                         newPublicationIntent.putExtra("fileuri", "file:///" + files.get(position).getPath());
+                        newPublicationIntent.putExtra(Config.USER_ID, userId);
                         startActivityForResult(newPublicationIntent, Config.NEW_PUBLICATION_CODE);
 
                     }
                 }));
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(Config.USER_ID, userId);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
 }

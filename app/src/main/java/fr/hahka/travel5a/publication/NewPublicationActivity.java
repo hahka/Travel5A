@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,14 +36,14 @@ public class NewPublicationActivity extends Activity
         GoogleApiClient.OnConnectionFailedListener {
 
     /**
-     *LogCat tag
-     */
-    private static final String TAG = NewPublicationActivity.class.getSimpleName();
-
-    /**
      * TODO : à expliquer
      */
     public static final String UPLOAD_KEY = "image";
+
+    /**
+     *LogCat tag
+     */
+    private static final String TAG = NewPublicationActivity.class.getSimpleName();
 
     /**
      * Bitmap qui sera utilisé pour afficher l'image que l'utilisateur veut publier
@@ -78,14 +77,16 @@ public class NewPublicationActivity extends Activity
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
-    private LocationManager locationManager;
-    private String bestProvider;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_publication);
 
+        userId = getIntent().getStringExtra(Config.USER_ID);
+        if (userId == null)
+            finish();
         /**
          * ImageView pour contenir l'image prise par l'utilisateur
          */
@@ -94,7 +95,6 @@ public class NewPublicationActivity extends Activity
         uploadButton = (FloatingActionButton) findViewById(R.id.fab_upload);
 
         descriptionPublication = (EditText) findViewById(R.id.publicationDescription);
-
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -118,12 +118,15 @@ public class NewPublicationActivity extends Activity
         latitude = bundle.getDouble("latitude");
         longitude = bundle.getDouble("longitude");
 
-
+        int maxDisplaySize = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
+        if (getResources().getConfiguration().orientation == 2) {
+            maxDisplaySize = (int) (getResources().getDisplayMetrics().widthPixels * 0.4);
+        }
         image = null;
         if (fileUri != null) {
             image = new File(fileUri.split(":")[1]);
 
-            bitmap = ImageUtils.getOrientedAndScaledBitmap(image, getResources().getDisplayMetrics().widthPixels);
+            bitmap = ImageUtils.getOrientedAndScaledBitmap(image, maxDisplaySize);
 
             imageView.setImageBitmap(bitmap);
         }
@@ -136,7 +139,22 @@ public class NewPublicationActivity extends Activity
      */
     private void uploadPublication() {
 
-        class UploadBitmap extends AsyncTask<Bitmap, Void, String> {
+        String filePath = ImageUtils.saveToInternalSorage(bitmap, image.getName().replace(".jpg", ".bmp"));
+
+        PointOfInterest poi = new PointOfInterest();
+        poi.setDescription(descriptionPublication.getText().toString());
+        poi.setLatitude(mLastLocation.getLatitude());
+        poi.setLongitude(mLastLocation.getLongitude());
+        poi.setUserId(Integer.parseInt(userId.trim()));
+        poi.setImagePath(filePath);
+
+        PointOfInterestDAO.insertPointOfInterest(getApplicationContext(), poi);
+
+
+        /**
+         * Classe pour uploader les publications
+         */
+        class UploadToServer extends AsyncTask<Bitmap, Void, String> {
 
             private RequestHandler rh = new RequestHandler();
 
@@ -163,7 +181,6 @@ public class NewPublicationActivity extends Activity
                 super.onPostExecute(s);
                 uploadButton.setIndeterminate(false);
                 uploadButton.setProgress(100, false);
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -174,7 +191,7 @@ public class NewPublicationActivity extends Activity
 
                     data.put(UPLOAD_KEY, FileUtils.getEncodedBitmap(params[0]));
                     data.put("image_name", image.getName().replace(".jpg", ".bmp"));
-                    data.put("user_id", "2");
+                    data.put("user_id", userId);
                     data.put("description", (descriptionPublication));
                     data.put("latitude", String.valueOf(mLastLocation.getLatitude()));
                     data.put("longitude", String.valueOf(mLastLocation.getLongitude()));
@@ -188,24 +205,14 @@ public class NewPublicationActivity extends Activity
         }
 
 
-        String filePath = ImageUtils.saveToInternalSorage(bitmap, image.getName().replace(".jpg", ".bmp"));
-
-        PointOfInterest poi = new PointOfInterest();
-        poi.setDescription(descriptionPublication.getText().toString());
-        poi.setLatitude(mLastLocation.getLatitude());
-        poi.setLongitude(mLastLocation.getLongitude());
-        poi.setUserId(2);
-        poi.setImagePath(filePath);
-
-
-        PointOfInterestDAO.insertPointOfInterest(getApplicationContext(), poi);
+        UploadToServer ui = new UploadToServer();
+        ui.setDescriptionPublication(descriptionPublication.getText().toString());
+        ui.execute(bitmap);
 
         Intent intent = new Intent();
+        intent.putExtra(Config.USER_ID, userId);
         setResult(RESULT_OK, intent);
         finish();
-        //UploadBitmap ui = new UploadBitmap();
-        //ui.setDescriptionPublication(descriptionPublication.getText().toString());
-        //ui.execute(bitmap);
 
     }
 

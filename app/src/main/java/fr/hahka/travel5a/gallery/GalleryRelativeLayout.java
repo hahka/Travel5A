@@ -61,9 +61,6 @@ public class GalleryRelativeLayout extends RelativeLayout {
             child.invalidate();
             child.setBottom(0);
             child.invalidate();
-            //child.setVisibility( GONE );
-
-            //child.measure(width, width);
         }
     }
 }

@@ -36,18 +36,16 @@ public class TravelSQLite extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        //on crée la table à partir de la requête écrite dans la variable CREATE_BDD
+        // On appelle les fonctions de creation des deux classe SQL
         UserSQLite.create(db);
         PointOfInterestSQLite.create(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //On peut faire ce qu'on veut ici moi j'ai décidé de supprimer la table et de la recréer
-        //comme ça lorsque je change la version les id repartent de 0
+        //On appelle les fonctions d'upgrade des deux classe SQL
         UserSQLite.upgrade(db, oldVersion, newVersion);
         PointOfInterestSQLite.upgrade(db, oldVersion, newVersion);
-        //onCreate(db);
     }
 
 }

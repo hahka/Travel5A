@@ -11,9 +11,10 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.github.clans.fab.FloatingActionButton;
@@ -21,9 +22,13 @@ import com.github.clans.fab.FloatingActionButton;
 import fr.hahka.travel5a.Config;
 import fr.hahka.travel5a.gallery.GalleryProviderActivity;
 import fr.hahka.travel5a.R;
+import fr.hahka.travel5a.poi.PointOfInterest;
+import fr.hahka.travel5a.poi.PointOfInterestDetailsFragment;
 import fr.hahka.travel5a.poi.PointOfInterestFragment;
+import fr.hahka.travel5a.poi.PointOfInterestFragmentManager;
 import fr.hahka.travel5a.proximity.MapsFragment;
 import fr.hahka.travel5a.publication.NewPublicationActivity;
+import fr.hahka.travel5a.user.UserLoginActivity;
 import fr.hahka.travel5a.utils.MediaHelper;
 
 
@@ -32,7 +37,7 @@ import fr.hahka.travel5a.utils.MediaHelper;
  */
 public class MainActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        View.OnClickListener {
+        View.OnClickListener, PointOfInterestFragment.OnPoiSelectedListener  {
 
     // LogCat tag
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -63,6 +68,9 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton btnRecordVideo;
 
 
+    private String userId;
+
+
     private Uri fileUri;
 
     @Override
@@ -84,10 +92,33 @@ public class MainActivity extends AppCompatActivity
         //btnCapturePicture = (FloatingActionButton) findViewById(R.id.btnCapturePicture);
         findViewById(R.id.btnCapturePicture).setOnClickListener(this);
         findViewById(R.id.btnOpenGallery).setOnClickListener(this);
+        findViewById(R.id.btnSyncServer).setOnClickListener(this);
+
+        if (savedInstanceState == null) {
+
+            if (getIntent().getStringExtra(Config.USER_ID) != null) {
+                userId = getIntent().getStringExtra(Config.USER_ID);
+            } else {
+                Intent loginIntent = new Intent(MainActivity.this, UserLoginActivity.class);
+                startActivityForResult(loginIntent, Config.AUTH_REQUEST_CODE);
+            }
+
+        } else {
+            userId = savedInstanceState.getString(Config.USER_ID);
+        }
 
 
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putString(Config.USER_ID, userId);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
 
 
     /**
@@ -109,6 +140,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void openGallery() {
         Intent intent = new Intent(MainActivity.this, GalleryProviderActivity.class);
+        intent.putExtra(Config.USER_ID, userId);
 
         startActivityForResult(intent, Config.NEW_PUBLICATION_CODE);
         /*Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -116,20 +148,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Lancement de l'application camera pour capturer une vidéo
+     * Lancement de l'application camera pour capturer une image
      */
-    private void recordVideo() {
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+    private void syncServer() {
 
-        fileUri = MediaHelper.getOutputMediaFileUri(Config.MEDIA_TYPE_VIDEO);
-
-        // set video quality
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-
-        // start the video capture Intent
-        startActivityForResult(intent, Config.CAMERA_CAPTURE_VIDEO_REQUEST_CODE);
     }
 
 
@@ -144,7 +166,7 @@ public class MainActivity extends AppCompatActivity
         switch (position)
         {
             case 0:
-                fragment = new PointOfInterestFragment();
+                fragment = new PointOfInterestFragmentManager();
                 break;
 
             case 1:
@@ -167,18 +189,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    /**
-     * TODO: A expliquer
-     */
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setTitle(mTitle);
-        }
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -186,47 +196,35 @@ public class MainActivity extends AppCompatActivity
 
         switch (requestCode) {
             case Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE:
-                Intent newPublicationIntent = new Intent(MainActivity.this, NewPublicationActivity.class);
-                newPublicationIntent.putExtra("fileuri", fileUri.toString());
-                startActivityForResult(newPublicationIntent, Config.NEW_PUBLICATION_CODE);
+
+                if (resultCode == RESULT_OK) {
+                    Intent newPublicationIntent = new Intent(MainActivity.this, NewPublicationActivity.class);
+                    newPublicationIntent.putExtra("fileuri", fileUri.toString());
+                    newPublicationIntent.putExtra(Config.USER_ID, userId);
+                    startActivityForResult(newPublicationIntent, Config.NEW_PUBLICATION_CODE);
+                }
                 break;
 
 
             case Config.NEW_PUBLICATION_CODE:
+                Intent intent = getIntent();
+                intent.putExtra(Config.USER_ID, data.getStringExtra(Config.USER_ID));
                 finish();
-                startActivity(getIntent());
+                startActivity(intent);
                 break;
 
+            case Config.AUTH_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    userId = data.getStringExtra(Config.USER_ID);
+                    onNavigationDrawerItemSelected(0);
+                }
+                else
+                    finish();
+                break;
 
             default:
                 break;
         }
-        //if (requestCode == Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
-
-            /*File sd = Environment.getExternalStorageDirectory();
-            Log.d(TAG, fileUri.toString());
-            Log.d(TAG, sd.getPath()+fileUri.toString());
-            File image = new File(fileUri.getPath());
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            bitmap = BitmapFactory.decodeFile(image.getAbsolutePath(),bmOptions);*/
-            //imageView.setImageURI(fileUri);
-            /*try {
-                bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
-                imageView.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
-            //imageView.setImageBitmap(imageBitmap);
-
-            /*Intent newPublicationIntent = new Intent(MainActivity.this, NewPublicationActivity.class);
-            newPublicationIntent.putExtra("fileuri", fileUri.toString());
-            startActivityForResult(newPublicationIntent, Config.NEW_PUBLICATION_CODE);*/
-            /*Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), Config.PICK_IMAGE_REQUEST);*/
-        //}
-
 
     }
 
@@ -258,7 +256,6 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    // TODO Auto-generated method stub
 
                 }
             });
@@ -273,11 +270,49 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
 
-
         if (v.getId() == R.id.btnCapturePicture) {
             captureImage();
         } else if (v.getId() == R.id.btnOpenGallery) {
             openGallery();
+        } else if (v.getId() == R.id.btnSyncServer) {
+            syncServer();
+        }
+    }
+
+
+    /**
+     * Fonction appelée lors d'un click sur un POI
+     * @param poi : poi cliqué
+     * @param position : position du poi cliqué dans la liste
+     */
+    public void onPoiSelected(PointOfInterest poi, int position) {
+
+        PointOfInterestDetailsFragment poiDetailsFragment = (PointOfInterestDetailsFragment)
+                getSupportFragmentManager().findFragmentById(R.id.container)
+                        .getChildFragmentManager().findFragmentById(R.id.poi_details_fragment);
+
+        Log.d(TAG, String.valueOf(poiDetailsFragment != null));
+
+        if (poiDetailsFragment != null) {
+
+            poiDetailsFragment.updatePoiDetailsView(poi, position);
+
+        } else {
+
+            PointOfInterestDetailsFragment newFragment = new PointOfInterestDetailsFragment();
+            Bundle args = new Bundle();
+            args.putInt(PointOfInterestDetailsFragment.ARG_POSITION, position);
+            args.putString(PointOfInterestDetailsFragment.ARG_IMAGE_PATH, poi.getImagePath());
+            args.putString(PointOfInterestDetailsFragment.ARG_DESCRIPTION, poi.getDescription());
+            args.putDouble(PointOfInterestDetailsFragment.ARG_LATITUDE, poi.getLatitude());
+            args.putDouble(PointOfInterestDetailsFragment.ARG_LONGITUDE, poi.getLongitude());
+            newFragment.setArguments(args);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            transaction.replace(R.id.container, newFragment);
+            transaction.addToBackStack(null);
+
+            transaction.commit();
         }
     }
 }

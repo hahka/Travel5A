@@ -47,5 +47,7 @@
     <string name="poiImageViewContentDescription">Image du POI</string>
     <string name="gallery">Gallery</string>
     <string name="new_publication">New Publication</string>
+    <string name="sync_server">Sync Server</string>
+    <string name="error_no_match">User or password invalid</string>
 
 </resources>
