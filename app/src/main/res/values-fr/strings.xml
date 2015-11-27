@@ -42,5 +42,8 @@
     <string name="action_sign_in">Se connecter</string>
     <string name="gallery">Galerie</string>
     <string name="new_publication">Nouvelle Publication</string>
+    <string name="error_no_match">Les identifiants ne correspondent pas</string>
+    <string name="poiImageViewContentDescription">Image du POI</string>
+    <string name="sync_server">Sync Server</string>
 
 </resources>

@@ -44,7 +44,7 @@
     <string name="error_invalid_login">Invalid login</string>
     <string name="error_invalid_password">Invalid password</string>
     <string name="error_no_user_found">No user found</string>
-    <string name="poiImageViewContentDescription">Image du POI</string>
+    <string name="poiImageViewContentDescription">POI Image</string>
     <string name="gallery">Gallery</string>
     <string name="new_publication">New Publication</string>
     <string name="sync_server">Sync Server</string>
