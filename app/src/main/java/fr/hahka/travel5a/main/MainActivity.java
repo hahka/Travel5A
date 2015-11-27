@@ -53,11 +53,6 @@ public class MainActivity extends AppCompatActivity
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
     /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
-
-    /**
      * btnCapturePicture : Bouton pour prendre une photo
      */
     private FloatingActionButton btnCapturePicture;
@@ -82,7 +77,6 @@ public class MainActivity extends AppCompatActivity
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
