@@ -125,14 +125,16 @@ public class MainActivity extends AppCompatActivity
      * Lancement de l'application camera pour capturer une image
      */
     private void captureImage() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(areLocationServicesEnabled()) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        fileUri = MediaHelper.getOutputMediaFileUri(Config.MEDIA_TYPE_IMAGE);
+            fileUri = MediaHelper.getOutputMediaFileUri(Config.MEDIA_TYPE_IMAGE);
 
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 
-        // start the image capture Intent
-        startActivityForResult(intent, Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+            // start the image capture Intent
+            startActivityForResult(intent, Config.CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+        }
     }
 
     /**
@@ -143,8 +145,6 @@ public class MainActivity extends AppCompatActivity
         intent.putExtra(Config.USER_ID, userId);
 
         startActivityForResult(intent, Config.NEW_PUBLICATION_CODE);
-        /*Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i, 1234);*/
     }
 
     /**
@@ -170,7 +170,8 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case 1:
-                fragment = new MapsFragment();
+                if(areLocationServicesEnabled())
+                    fragment = new MapsFragment();
                 break;
 
             case 2:
